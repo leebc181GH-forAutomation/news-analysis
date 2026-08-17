@@ -1,0 +1,6 @@
+.env
+data/*.sqlite3
+data/digest_*.json
+data/digest_send_*.txt
+__pycache__/
+*.pyc

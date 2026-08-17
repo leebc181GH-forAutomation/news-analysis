@@ -1,0 +1,54 @@
+# 관련성 필터 키워드
+# sources.yaml에서 filter: true 로 지정된 소스에만 적용됩니다.
+# 제목(title) + 요약(summary)에 아래 키워드 중 하나라도 (대소문자 무관) 포함되면 관련 기사로 채택합니다.
+
+include:
+  en:
+    - RWA
+    - real-world asset
+    - real world asset
+    - tokeniz          # tokenize/tokenization/tokenized 공통 어간
+    - tokenis          # 영국식 철자 tokenise/tokenisation
+    - tokenized fund
+    - tokenized securit
+    - tokenized treasury
+    - tokenized deposit
+    - security token
+    - stablecoin
+    - stable coin
+    - on-chain finance
+    - onchain finance
+    - on chain finance
+    - digital asset
+    - digital securit
+    - money market fund token
+    - permissioned defi
+    - institutional defi
+    - CBDC
+    - asset-backed token
+    - synthetic asset
+  ko:
+    - 실물자산
+    - 토큰화
+    - 토큰증권
+    - 증권형토큰
+    - 스테이블코인
+    - 온체인 금융
+    - 온체인금융
+    - 디지털자산
+    - 디지털 자산
+    - 가상자산
+    - 예치토큰
+    - 자산유동화토큰
+
+# 오탐(false positive) 방지용 제외 키워드. include에 매치되어도 아래 단어가
+# 함께 있으면 제외합니다 (예: 게임 토큰/NFT 아트 등 주제 이탈 방지).
+exclude:
+  en:
+    - play-to-earn
+    - "NFT art"
+    - giveaway
+    - airdrop farming
+  ko:
+    - 에어드랍 이벤트
+    - 무료 지급
