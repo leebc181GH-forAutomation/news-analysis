@@ -15,26 +15,36 @@ requests 등)을 차단한다. 오직 **WebFetch 도구를 통한 접근만 허�
 
 ## 절차 (클라우드 routine 기준)
 
-1. **수집**: `config/sources.yaml`을 읽고, `url`이 비어있지 않은 각 소스에
-   대해 다음을 반복한다:
-   a. WebFetch(그 소스의 url, 아래 추출 프롬프트)를 호출한다:
-      > "이 페이지는 RSS/Atom 피드입니다. 모든 항목(item/entry)을 빠짐없이
-      > JSON 배열로 추출해줘. 각 원소는 정확히
+1. **수집**: `config/sources.yaml`을 읽고, `media` / `regulators` /
+   `google_alerts` / `company_blogs` 네 카테고리에서 `url`이 비어있지 않은
+   각 소스에 대해 다음을 반복한다:
+   a. WebFetch(그 소스의 url, 아래 추출 프롬프트)를 호출한다. RSS/Atom
+      피드든 회사 블로그/뉴스룸 HTML 페이지든 동일한 프롬프트를 쓴다:
+      > "이 페이지에서 보이는 기사/게시물 항목을 모두 JSON 배열로 추출해줘.
+      > (RSS/Atom 피드면 각 item/entry를, 일반 블로그/뉴스 목록 페이지면
+      > 보이는 게시물 목록을 사용) 각 원소는 정확히
       > {"title": "...", "url": "...", "published": "...", "summary": "..."}
-      > 형식이어야 하고, summary는 피드에 있는 설명을 1~2문장으로 정리한
-      > 것(없으면 빈 문자열). 다른 설명 텍스트 없이 JSON 배열만 출력해줘."
-   b. WebFetch 결과(JSON 배열 텍스트)를 `data/_tmp_items.json` 파일에 그대로
+      > 형식이어야 하고, summary는 1~2문장 설명(없으면 빈 문자열),
+      > published는 날짜가 보이면 그대로, 없으면 빈 문자열. 이 페이지가
+      > 개별 게시물 목록이 아니라 랜딩 페이지라서 뉴스/블로그/프레스룸
+      > 링크만 보인다면, 그 목록 대신 랜딩 페이지에서 찾은 뉴스/블로그
+      > 섹션 링크 URL 하나를 {"redirect": "..."} 형태로 알려줘.
+      > 다른 설명 텍스트 없이 JSON만 출력해줘."
+   b. 응답이 `{"redirect": "..."}` 형태면, 그 URL로 WebFetch를 한 번 더
+      호출해 실제 게시물 목록을 추출한다 (a와 동일한 프롬프트 재사용).
+   c. WebFetch 결과(JSON 배열 텍스트)를 `data/_tmp_items.json` 파일에 그대로
       저장한다 (Write 도구 사용, 셸 이스케이프 문제 회피).
-   c. 다음 명령으로 필터링/중복제거/누적 저장한다:
+   d. 다음 명령으로 필터링/중복제거/누적 저장한다:
       ```
-      python src/ingest_items.py --source "<소스 name>" --category <media|regulators|google_alerts> --lang <lang> --filter <filter 값> < data/_tmp_items.json
+      python src/ingest_items.py --source "<소스 name>" --category <media|regulators|google_alerts|company_blogs> --lang <lang> --filter <filter 값> < data/_tmp_items.json
       ```
       (`<소스 name>`, `<category>`, `<lang>`, `<filter>`는 sources.yaml의
       해당 소스 필드 값을 그대로 사용)
-   d. 특정 소스에서 WebFetch가 실패하거나 빈 결과를 반환해도 전체를 중단하지
-      말고 다음 소스로 넘어간다. 실패한 소스는 나중에 요약 보고에 짧게
-      언급한다.
-   e. 모든 소스를 처리한 뒤 `data/digest_<YYYYMMDD>.json`을 읽는다
+   e. 특정 소스에서 WebFetch가 실패(EGRESS_BLOCKED 포함)하거나 빈 결과를
+      반환해도 전체를 중단하지 말고 다음 소스로 넘어간다. `EGRESS_BLOCKED`
+      오류가 난 도메인은 목록으로 모아뒀다가 마지막 요약 보고에 반드시
+      포함한다 (사용자가 환경의 Network access 허용 목록에 추가해야 함).
+   f. 모든 소스를 처리한 뒤 `data/digest_<YYYYMMDD>.json`을 읽는다
       (예: `data/digest_20260817.json`). 이 파일이 오늘의 누적 결과다.
 
 2. JSON의 `items` 배열을 확인한다.

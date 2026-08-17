@@ -26,7 +26,7 @@ from store import SeenStore
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", required=True)
-    parser.add_argument("--category", required=True, choices=["media", "regulators", "google_alerts"])
+    parser.add_argument("--category", required=True, choices=["media", "regulators", "google_alerts", "company_blogs"])
     parser.add_argument("--lang", default="en")
     parser.add_argument("--filter", default="true", choices=["true", "false"])
     args = parser.parse_args()

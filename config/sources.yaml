@@ -102,6 +102,173 @@ regulators:
       "site:adgm.com announcement" 알림으로 대체를 권장합니다.
 
 # ---------------------------------------------------------------------------
+# 기업 블로그 / 뉴스룸
+# 대부분 표준 RSS가 없으므로 클라우드 routine에서는 WebFetch로 홈페이지/뉴스
+# 페이지를 직접 열어 최근 게시물을 추출한다 (AGENT_PROMPT.md 참고). 로컬
+# collect.py(feedparser)는 이 카테고리를 지원하지 않는다 - RSS가 아니기 때문.
+#
+# filter: false  -> RWA/토큰화 전문 기업 (거의 모든 게시물이 주제와 관련)
+# filter: true   -> 사업 영역이 넓어 무관한 내용도 많이 올라오는 대형 기업/기관
+# ---------------------------------------------------------------------------
+company_blogs:
+  - name: Securitize
+    url: https://securitize.io
+    lang: en
+    filter: false
+  - name: Ondo Finance
+    url: https://ondo.finance
+    lang: en
+    filter: false
+  - name: Tokeny
+    url: https://tokeny.com
+    lang: en
+    filter: false
+  - name: Superstate
+    url: https://superstate.co
+    lang: en
+    filter: false
+  - name: Centrifuge
+    url: https://centrifuge.io
+    lang: en
+    filter: false
+  - name: Backed Finance
+    url: https://backed.fi
+    lang: en
+    filter: false
+  - name: Figure
+    url: https://www.figure.com
+    lang: en
+    filter: false
+  - name: Libre Capital
+    url: https://www.librecapital.com
+    lang: en
+    filter: false
+  - name: Maple Finance
+    url: https://maple.finance
+    lang: en
+    filter: false
+  - name: OpenEden
+    url: https://openeden.com
+    lang: en
+    filter: false
+  - name: Goldfinch
+    url: https://goldfinch.finance
+    lang: en
+    filter: false
+  - name: Credix
+    url: https://credix.finance
+    lang: en
+    filter: false
+  - name: Clearpool
+    url: https://clearpool.finance
+    lang: en
+    filter: false
+  - name: Huma Finance
+    url: https://huma.finance
+    lang: en
+    filter: false
+  - name: Canton Network
+    url: https://canton.network
+    lang: en
+    filter: false
+  - name: Digital Asset
+    url: https://digitalasset.com
+    lang: en
+    filter: false
+  - name: R3 (Corda)
+    url: https://r3.com
+    lang: en
+    filter: false
+  - name: Chainlink
+    url: https://chain.link
+    lang: en
+    filter: false
+  - name: Fireblocks
+    url: https://fireblocks.com
+    lang: en
+    filter: false
+  - name: Anchorage Digital
+    url: https://anchorage.com
+    lang: en
+    filter: false
+  - name: BitGo
+    url: https://bitgo.com
+    lang: en
+    filter: false
+  - name: Zodia Custody
+    url: https://zodia-custody.com
+    lang: en
+    filter: false
+  - name: HexTrust
+    url: https://hextrust.com
+    lang: en
+    filter: false
+  - name: Komainu
+    url: https://komainu.com
+    lang: en
+    filter: false
+  - name: DTCC
+    url: https://dtcc.com
+    lang: en
+    filter: true
+  - name: Coinbase
+    url: https://coinbase.com
+    lang: en
+    filter: true
+  - name: Ethereum Foundation
+    url: https://ethereum.org
+    lang: en
+    filter: true
+  - name: Solana
+    url: https://solana.com
+    lang: en
+    filter: true
+  - name: Avalanche
+    url: https://avax.network
+    lang: en
+    filter: true
+  - name: Stellar
+    url: https://stellar.org
+    lang: en
+    filter: true
+  - name: Polygon
+    url: https://polygon.technology
+    lang: en
+    filter: true
+  - name: Aptos
+    url: https://aptoslabs.com
+    lang: en
+    filter: true
+  - name: Ripple
+    url: https://ripple.com
+    lang: en
+    filter: true
+  - name: JPMorgan
+    url: https://jpmorgan.com
+    lang: en
+    filter: true
+  - name: Franklin Templeton
+    url: https://franklintempleton.com
+    lang: en
+    filter: true
+  - name: BlackRock
+    url: https://blackrock.com
+    lang: en
+    filter: true
+  - name: Hamilton Lane
+    url: https://hamiltonlane.com
+    lang: en
+    filter: true
+  - name: Apollo
+    url: https://apollo.com
+    lang: en
+    filter: true
+  - name: WisdomTree
+    url: https://wisdomtree.com
+    lang: en
+    filter: true
+
+# ---------------------------------------------------------------------------
 # Google Alerts
 # 1) https://www.google.com/alerts 에서 아래 예시와 같은 쿼리로 알림 생성
 # 2) "전송 방법(Deliver to)"을 "RSS 피드"로 설정

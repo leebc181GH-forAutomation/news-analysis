@@ -70,13 +70,22 @@ flowchart TD
 
 실제 클라우드 routine으로 테스트하던 중 발견한 제약사항:
 
-- **Claude Code 클라우드 샌드박스는 임의 외부 도메인에 대한 raw 소켓 접근을
-  정책상 차단한다.** `curl`, Python `requests`/`urllib` 등으로 뉴스 사이트에
-  직접 접속하면 egress 프록시가 `403 Forbidden`으로 막는다. 오직 **WebFetch
-  도구를 통한 접근만 허용**된다. 따라서 `collect.py`(feedparser 직접 호출)는
-  로컬 PC에서만 쓸 수 있고, 클라우드에서는 `AGENT_PROMPT.md`에 정의된
-  WebFetch 기반 수집(각 소스를 WebFetch로 가져와 `src/ingest_items.py`에
-  파이프)을 사용한다.
+- **Claude Code 클라우드 environment는 기본적으로(Trusted 등급) 패키지
+  레지스트리/GitHub 등 극히 제한된 도메인 외에는 outbound 접근을 전부
+  차단한다.** 이건 특정 웹사이트가 우리를 막는 게 아니라 Anthropic 클라우드
+  샌드박스 자체의 network egress 정책이며, `curl`/Python `requests` 같은
+  raw 소켓 접근은 물론 **WebFetch 도구조차 이 정책의 적용을 받는다**
+  (`EGRESS_BLOCKED` 에러로 즉시 거부됨). 따라서 뉴스 사이트 접근을 쓰려면
+  routine이 사용하는 environment의 **Network access를 Trusted가 아닌
+  Full(모든 도메인) 또는 Custom(직접 지정한 도메인 목록)으로 변경**해야
+  한다 — claude.ai/code → 환경 선택 아이콘 → 클라우드 → 사용할 환경에
+  마우스오버 → 설정(톱니바퀴) 아이콘 → Network access. Custom을 쓸 경우
+  `config/sources.yaml`에 등록된 모든 소스의 도메인을 허용 목록에 추가해야
+  하며(www 유무까지 정확히 일치해야 함), 새 소스를 추가할 때마다 목록도
+  갱신해야 한다.
+- 이 정책 위에서 `collect.py`(feedparser 직접 호출)는 로컬 PC에서만 쓸 수
+  있고, 클라우드에서는 `AGENT_PROMPT.md`에 정의된 WebFetch 기반 수집(각
+  소스를 WebFetch로 가져와 `src/ingest_items.py`에 파이프)을 사용한다.
 - **클라우드 routine은 매 실행마다 저장소를 새로 clone한다.** 즉 로컬
   디스크에만 있는 상태는 다음 실행 때 사라진다. 그래서 `data/seen.sqlite3`
   (중복방지 DB)는 `.gitignore`에서 제외해 **저장소에 커밋**하고,
@@ -102,7 +111,15 @@ flowchart TD
 | 선택 채널 | X(Twitter) | 🔲 유료 API 토큰 있을 때만 활성화 |
 
 `python src/check_sources.py` 를 실행하면 언제든 현재 등록된 피드의 생존
-여부를 재확인할 수 있다 (피드 URL은 매체 개편으로 종종 바뀐다).
+여부를 재확인할 수 있다 (피드 URL은 매체 개편으로 종종 바뀐다). 단, 이
+스크립트는 RSS 소스(media/regulators/google_alerts)만 검증하며, 아래
+`company_blogs`는 RSS가 아니므로 대상이 아니다.
+
+`config/sources.yaml`의 `company_blogs`에는 Securitize, Ondo Finance,
+Centrifuge, Maple Finance, Chainlink, Fireblocks, BlackRock, JPMorgan,
+Franklin Templeton 등 RWA/토큰화/커스터디/기관 생태계 기업 약 35곳이
+등록되어 있다 (표준 RSS가 없어 WebFetch로 홈페이지/뉴스 페이지를 직접
+읽는다, 1.4절 참고).
 
 ## 3. 설치 및 설정
 
