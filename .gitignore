@@ -1,6 +1,11 @@
 .env
-data/*.sqlite3
 data/digest_*.json
 data/digest_send_*.txt
 __pycache__/
 *.pyc
+
+# data/seen.sqlite3 는 의도적으로 추적한다 (아래 참고).
+# 클라우드 routine은 매 실행마다 저장소를 새로 clone하므로, 중복방지 DB를
+# 커밋해서 저장소에 영속화하지 않으면 매일 상태가 초기화되어 같은 기사를
+# 반복 발송하게 된다. AGENT_PROMPT.md 마지막 단계에서 발송 후 이 파일을
+# 커밋/푸시한다.

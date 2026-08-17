@@ -59,11 +59,29 @@ flowchart TD
 |---|---|---|
 | 소스 정의 | `config/sources.yaml` | 매체/규제기구/Google Alerts/X 소스 목록, 소스별 필터 여부 |
 | 관련성 필터 | `config/keywords.yaml` | RWA/토큰화/스테이블코인 등 include 키워드, 오탐 방지 exclude 키워드 |
-| 수집+중복제거 | `src/collect.py` | RSS 파싱 → 필터 → `seen.sqlite3` 대조 → 신규 기사만 JSON 출력 |
-| 중복 저장소 | `src/store.py` | URL SHA256 해시 기반 SQLite seen-store |
+| 수집+중복제거 (로컬) | `src/collect.py` | feedparser로 RSS 직접 파싱 → 필터 → `seen.sqlite3` 대조 → 신규 기사만 JSON 출력. 로컬 PC에서 수동 실행할 때만 사용 (클라우드 routine에서는 네트워크 정책상 동작 안 함, 아래 2.2 참고) |
+| 수집+중복제거 (클라우드) | `src/ingest_items.py` | WebFetch로 가져온 항목(JSON)을 stdin으로 받아 collect.py와 동일한 필터/중복제거 로직 적용 |
+| 중복 저장소 | `src/store.py` | URL SHA256 해시 기반 SQLite seen-store (`data/seen.sqlite3`, 클라우드에서는 git에 커밋해 영속화) |
 | 소스 상태 점검 | `src/check_sources.py` | 등록된 피드가 살아있는지 수시 점검하는 유틸리티 |
 | 요약/시사점/발송 지시서 | `AGENT_PROMPT.md` | 예약 에이전트가 매일 그대로 따르는 절차 (요약 규칙, 메시지 템플릿) |
 | 발송 | `src/send_telegram.py` | 완성된 다이제스트 텍스트를 Telegram Bot API로 전송 (4096자 청크 분할) |
+
+### 1.4 클라우드 routine의 네트워크 제약 (중요)
+
+실제 클라우드 routine으로 테스트하던 중 발견한 제약사항:
+
+- **Claude Code 클라우드 샌드박스는 임의 외부 도메인에 대한 raw 소켓 접근을
+  정책상 차단한다.** `curl`, Python `requests`/`urllib` 등으로 뉴스 사이트에
+  직접 접속하면 egress 프록시가 `403 Forbidden`으로 막는다. 오직 **WebFetch
+  도구를 통한 접근만 허용**된다. 따라서 `collect.py`(feedparser 직접 호출)는
+  로컬 PC에서만 쓸 수 있고, 클라우드에서는 `AGENT_PROMPT.md`에 정의된
+  WebFetch 기반 수집(각 소스를 WebFetch로 가져와 `src/ingest_items.py`에
+  파이프)을 사용한다.
+- **클라우드 routine은 매 실행마다 저장소를 새로 clone한다.** 즉 로컬
+  디스크에만 있는 상태는 다음 실행 때 사라진다. 그래서 `data/seen.sqlite3`
+  (중복방지 DB)는 `.gitignore`에서 제외해 **저장소에 커밋**하고,
+  `AGENT_PROMPT.md`의 마지막 단계에서 매번 `git add/commit/push`해
+  영속화한다. 이걸 빠뜨리면 매일 같은 기사를 반복 발송하게 된다.
 
 ## 2. 소스 목록과 확인 상태 (2026-08-17 기준)
 
