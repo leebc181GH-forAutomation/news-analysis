@@ -7,8 +7,12 @@
 
 ## 절차
 
-1. 프로젝트 디렉터리로 이동:
-   `D:\Automata\Projects\ClaudeCodePilot\NewsAnalysis`
+1. 저장소 루트로 이동한다.
+   - 로컬 실행: `D:\Automata\Projects\ClaudeCodePilot\NewsAnalysis`
+   - 클라우드 routine 실행: 체크아웃된 저장소 루트 (별도 이동 불필요)
+   - 의존성 설치가 안 되어 있다면 `pip install -r requirements.txt` 먼저 실행.
+   - `.env` 파일이 없다면(클라우드 첫 실행 등) routine 설정에 포함된
+     TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID 값으로 `.env` 파일을 생성한다.
 
 2. 수집 스크립트를 실행한다 (LLM 호출 없이 RSS만 수집/중복제거):
    ```
