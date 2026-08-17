@@ -1,6 +1,7 @@
 .env
 data/digest_*.json
 data/digest_send_*.txt
+data/_tmp_items*.json
 __pycache__/
 *.pyc
 
